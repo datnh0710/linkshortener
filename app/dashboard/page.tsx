@@ -4,6 +4,9 @@ import { db } from '@/db';
 import { links } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CreateLinkDialog } from '@/components/CreateLinkDialog';
+import { EditLinkDialog } from '@/components/EditLinkDialog';
+import { DeleteLinkDialog } from '@/components/DeleteLinkDialog';
 
 export default async function Dashboard() {
     const { userId } = await auth();
@@ -16,15 +19,18 @@ export default async function Dashboard() {
         .select()
         .from(links)
         .where(eq(links.userId, userId))
-        .orderBy(desc(links.createdAt));
+        .orderBy(desc(links.updatedAt));
 
     return (
         <div className="container mx-auto py-8 px-4">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-                <p className="text-muted-foreground">
-                    Manage your shortened links
-                </p>
+            <div className="mb-8 flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
+                    <p className="text-muted-foreground">
+                        Manage your shortened links
+                    </p>
+                </div>
+                <CreateLinkDialog />
             </div>
 
             {userLinks.length === 0 ? (
@@ -74,9 +80,15 @@ export default async function Dashboard() {
                                     <span>
                                         Created: {new Date(link.createdAt).toLocaleDateString()}
                                     </span>
-                                    <span>
-                                        Short code: <code className="bg-muted px-1.5 py-0.5 rounded">{link.shortCode}</code>
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <span>
+                                            Short code: <code className="bg-muted px-1.5 py-0.5 rounded">{link.shortCode}</code>
+                                        </span>
+                                        <div className="flex items-center gap-1 ml-2">
+                                            <EditLinkDialog link={link} />
+                                            <DeleteLinkDialog link={link} />
+                                        </div>
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>
